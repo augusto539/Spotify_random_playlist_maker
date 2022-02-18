@@ -107,8 +107,8 @@ router.get('/home', (req, res) => {
 });
 
 router.get('/home/:info', (req, res) => {
-  let token = req.cookies.token
-  spotifyApi.setAccessToken(token);   // set acces token
+  //let token = req.cookies.token
+  //spotifyApi.setAccessToken(token);   // set acces token
 
   if (req.params.info == 'crear') {
     get_sogns().then(songs => {
