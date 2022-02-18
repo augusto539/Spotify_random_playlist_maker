@@ -160,8 +160,8 @@ router.get('/home/:info', (req, res) => {
     get_sogns().then(songs => {
       //console.log(songs)
       create_playlist(songs)
-      res.render('home.html', {title: '- home', status:'succes'})
     });
+    res.render('home.html', {title: '- home', status:'succes'})
   };
 });
 
