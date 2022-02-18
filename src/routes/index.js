@@ -174,13 +174,12 @@ async function get_sogns(){
     let recommendations = await spotifyApi.getRecommendations({
       min_energy: 0.4,
       seed_genres: [genres[number]],
-      limit: 3
+      limit: 2
     })
-    
-    recommendations.body.tracks.forEach(element => {
-      list_of_sogns.push(element.uri)
-    });
-    
+
+    for (let i = 0; i < recommendations.body.tracks.length; i++) {
+      list_of_sogns.push(recommendations.body.tracks[i].uri)
+    }
   }; 
   return list_of_sogns 
 };
@@ -190,7 +189,7 @@ function create_playlist(songs){ // songs = ["spotify:track:4iV5W9uYEdYUVa79Axb7
   const d = new Date();
   let text_date = d.toLocaleDateString();
 
-  spotifyApi.createPlaylist(`All random (${text_date})`, { 'description': 'This playlist contains 30 aleatory songs', 'public': true })
+  spotifyApi.createPlaylist(`All random (${text_date})`, { 'description': 'This playlist contains 20 aleatory songs', 'public': true })
   .then(function(data) {
     //console.log(data.body.id)
     //spotifyApi.uploadCustomPlaylistCoverImage(data.body.id, img)
