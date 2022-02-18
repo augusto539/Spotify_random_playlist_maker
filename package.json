@@ -19,8 +19,12 @@
   },
   "homepage": "https://github.com/augusto539/Spotify_random_playlist_maker#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.3",
+    "querystring": "^0.2.1",
+    "request": "^2.88.2",
     "spotify-web-api-node": "^5.0.2"
   },
   "devDependencies": {
