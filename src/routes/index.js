@@ -113,9 +113,8 @@ router.get('/home/:info', (req, res) => {
   if (req.params.info == 'crear') {
     get_sogns().then(songs => {
       create_playlist(songs)
-     
+      res.render('home.html', {title: '- home', status:'succes'})
     });
-    res.render('home.html', {title: '- home', status:'succes'})
   };
 });
 
@@ -147,23 +146,9 @@ function create_playlist(songs){ // songs = ["spotify:track:4iV5W9uYEdYUVa79Axb7
 
   spotifyApi.createPlaylist(`All random (${text_date})`, { 'description': 'This playlist contains 30 aleatory songs', 'public': true })
   .then(function(data) {
-    console.log(data.body.id)
-
+    //console.log(data.body.id)
     spotifyApi.uploadCustomPlaylistCoverImage(data.body.id, img)
-    .then(function(data) {
-      console.log('Playlsit cover image uploaded!');
-    }, function(err) {
-      console.log('Something went wrong!', err);
-    });
-
     spotifyApi.addTracksToPlaylist(data.body.id, songs)
-    .then(function(data) {
-      console.log('Added tracks to playlist!');
-    }, function(err) {
-      console.log('Something went wrong!', err);
-    });
-
-    console.log('Created playlist!');
   }, function(err) {
     console.log('Something went wrong!', err);
   });
