@@ -157,8 +157,8 @@ router.get('/home/:info', (req, res) => {
   if (req.params.info == 'crear') {
 
     get_sogns().then(songs => {
-      //console.log(songs)
-      create_playlist(songs)
+      console.log(songs)
+      //create_playlist(songs)
       res.render('home.html', {title: '- home', status:'succes'})
     });
     
@@ -174,7 +174,7 @@ async function get_sogns(){
     let recommendations = await spotifyApi.getRecommendations({
       min_energy: 0.4,
       seed_genres: [genres[number]],
-      limit: 2
+      limit: 3
     })
 
     for (let i = 0; i < recommendations.body.tracks.length; i++) {
@@ -192,7 +192,7 @@ function create_playlist(songs){ // songs = ["spotify:track:4iV5W9uYEdYUVa79Axb7
   spotifyApi.createPlaylist(`All random (${text_date})`, { 'description': 'This playlist contains 20 aleatory songs', 'public': true })
   .then(function(data) {
     //console.log(data.body.id)
-    //spotifyApi.uploadCustomPlaylistCoverImage(data.body.id, img)
+    spotifyApi.uploadCustomPlaylistCoverImage(data.body.id, img)
     spotifyApi.addTracksToPlaylist(data.body.id, songs)
     
   }, function(err) {
