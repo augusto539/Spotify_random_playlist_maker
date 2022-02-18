@@ -7,9 +7,14 @@
     <div class="container">
         <h1> kk de titulo </h1>
         <h2> kk de subtitulo </h2>
-        <a href="/login">
-            <button type="" class="btn btn-success"> log in </button>
-        </a> 
+
+        <% if (status == 'succes') { %>
+            <h3> playlist creada ! </h3>
+        <% } else { %>
+            <a href="/home/crear">
+                <button type="" class="btn btn-success"> crear playlist </button>
+            </a> 
+        <% }; %>
     </div>
 </body>
 <footer>
