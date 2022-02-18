@@ -22,10 +22,10 @@ app.use(require('./routes/index'));
 app.use(express.static(path.join(__dirname, 'public')))
 // LISTENING THE SERVER
 
-/*
+
 const os = require('os')
 app.set('hostname', os.networkInterfaces()['Ethernet 2'][1]['address']); //get the ipv4 of the sistem
 app.listen(app.get('port'),app.get('hostname') , () => console.log(`Server runing at http://${app.get('hostname')}:${app.get('port')}/`));
-*/
 
-app.listen(app.get('port') , () => console.log(`Server runing on port: ${app.get('port')}`));
+
+//app.listen(app.get('port') , () => console.log(`Server runing on port: ${app.get('port')}`));
