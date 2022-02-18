@@ -113,8 +113,9 @@ router.get('/home/:info', (req, res) => {
   if (req.params.info == 'crear') {
     get_sogns().then(songs => {
       create_playlist(songs)
-      res.render('home.html', {title: '- home', status:'succes'})
+     
     });
+    res.render('home.html', {title: '- home', status:'succes'})
   };
 });
 
