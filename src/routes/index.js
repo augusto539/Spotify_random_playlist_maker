@@ -1,5 +1,6 @@
 // REQUIRES
 const express = require('express');
+const axios = require('axios');
 var SpotifyWebApi = require('spotify-web-api-node');
 
 // VARIABLES
@@ -93,14 +94,19 @@ const scopes = [
 // index
 router.get('/', (req, res) => {
   if (req.cookies.token){
-    res.redirect('/home')
+    let token_expiration_date = new Date(req.cookies.token.expiration_date)
+    let date_now = new Date()
+    if (date_now >= token_expiration_date){
+      res.clearCookie('token');
+      res.render('index.html', {title: ''}); // render de index page
+    } else {
+      res.redirect('/home')
+    } 
   } else {
     res.render('index.html', {title: ''}); // render de index page
   }
 });
 
-  
-  
 router.get('/login', (req, res) => {
   res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
@@ -126,7 +132,18 @@ router.get('/callback', (req, res) => {
   
     console.log(`Sucessfully retreived access token. Expires in ${expires_in} s.`);
 
-    res.cookie('token',access_token)
+    let date_now = new Date()
+    let expiration_date = new Date(date_now.getTime() + (expires_in/2) *1000);
+
+    let cookie_val = {
+      access_token: access_token,
+      refresh_token: refresh_token,
+      expiration_date: expiration_date
+    };
+
+    //console.log(cookie_val)
+
+    res.cookie('token',cookie_val)
     res.redirect('/home');
   
    
@@ -137,45 +154,38 @@ router.get('/callback', (req, res) => {
 });
 
 router.get('/home', (req, res) => {
-  let token = req.cookies.token
-  spotifyApi.setAccessToken(token);   // set acces token
-
   res.render('home.html', {title: '- home',status:''}); // render de index page
 });
 
 router.get('/home/:info', (req, res) => {
   let token = req.cookies.token
-  spotifyApi.setAccessToken(token);   // set acces token
-
-
   if (req.params.info == 'crear') {
     
-    get_sogns().then(songs => {
-      //console.log(songs)
-      create_playlist(songs)
+    get_tracs(token).then( track_list => {
+      create_playlist(track_list);
+      res.render('home.html', {title: '- home', status:'succes'});
     });
-    res.render('home.html', {title: '- home', status:'succes'})
   };
 });
 
+async function get_tracs(token){
+  let tracks = [];
+  
+  for (let i = 0; i < 2; i++) {
+    let list_of_generes = [];
+    for (let i = 0; i < 5; i++) {
+      let number = Math.floor(Math.random() * (genres.length));
+      list_of_generes.push(genres[number]);
+    };
 
-async function get_sogns(){
-  let list_of_sogns = []
-  for (let i = 0; i < 10; i++) {
-    let number = Math.floor(Math.random() * (genres.length))  
-    
-    let recommendations = await spotifyApi.getRecommendations({
-      min_energy: 0.4,
-      seed_genres: [genres[number]],
-      limit: 3
-    })
-    
+    let url = `https://api.spotify.com/v1/recommendations?limit=15&seed_genres=${list_of_generes.join("%2C")}`;
 
-    for (let i = 0; i < recommendations.body.tracks.length; i++) {
-      list_of_sogns.push(recommendations.body.tracks[i].uri)
-    }
-  }; 
-  return list_of_sogns 
+    let response = await axios({url: url,method: 'get',headers: {'Accept': 'application/json','Content-Type': 'application/json','Authorization': `Bearer ${token}`},});
+    response.data.tracks.forEach(element => {
+      tracks.push(element.uri);
+    });
+  };
+  return tracks
 };
 
 
