@@ -87,14 +87,20 @@ const scopes = [
 // index
 router.get('/', (req, res) => {
   if (req.cookies.token){ // look if the cookie "token" exist
-    let token_expiration_date = new Date(req.cookies.token.expiration_date);
-    let date_now = new Date();
-    if (date_now >= token_expiration_date){
+    if (req.cookies.token.expiration_date) {
+
+      let token_expiration_date = new Date(req.cookies.token.expiration_date);
+      let date_now = new Date();
+      if (date_now >= token_expiration_date){
+        res.clearCookie('token');
+        res.render('index.html', {title: ''}); // render de index page
+      } else {
+        res.redirect('/home');
+      };
+    } else {
       res.clearCookie('token');
       res.render('index.html', {title: ''}); // render de index page
-    } else {
-      res.redirect('/home');
-    } 
+    };  
   } else {
     res.render('index.html', {title: ''}); // render de index page
   }
