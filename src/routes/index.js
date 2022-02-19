@@ -149,20 +149,22 @@ router.get('/callback', (req, res) => {
 });
 // home
 router.get('/home', (req, res) => {
-  res.render('home.html', {title: '- home',status:''}); // render de index page
+  res.render('home.html', {title: '- home',status:'', PL_lik:''}); // render de index page
 });
 // home (create playlist)
 router.get('/home/:info', (req, res) => {
   let token = req.cookies.token.access_token
   if (req.params.info == 'crear') {
     get_tracs(token).then( track_list => {
-      create_playlist(track_list);
-      res.render('home.html', {title: '- home', status:'succes'});
+      create_playlist(track_list).then( link => {
+        console.log(link)
+        res.render('home.html', {title: '- home', status:'succes', PL_link:link});
+      });
     });
   };
 });
 
-async function get_tracs(token){
+async function get_tracs(token){  
   let tracks = [];
   
   for (let i = 0; i < 2; i++) {
@@ -173,8 +175,8 @@ async function get_tracs(token){
     };
 
     let url = `https://api.spotify.com/v1/recommendations?limit=15&seed_genres=${list_of_generes.join("%2C")}`;
-
-    let response = await axios({url: url,method: 'get',headers: {'Accept': 'application/json','Content-Type': 'application/json','Authorization': `Bearer ${token}`},});
+    let Authorization = `Bearer ${token}`
+    let response = await axios({url: url,method: 'get',headers: {'Accept': 'application/json','Content-Type': 'application/json','Authorization': Authorization},});
     response.data.tracks.forEach(element => {
       tracks.push(element.uri);
     });
@@ -183,18 +185,18 @@ async function get_tracs(token){
 };
 
 
-function create_playlist(songs){ // songs = ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh", "spotify:track:1301WleyT98MSxVHPZCA6M"]
+async function create_playlist(songs){ // songs = ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh", "spotify:track:1301WleyT98MSxVHPZCA6M"]
   const d = new Date();
   let text_date = d.toLocaleDateString();
 
-  spotifyApi.createPlaylist(`All random (${text_date})`, { 'description': 'This playlist contains 20 aleatory songs', 'public': true })
-  .then(function(data) {
-    spotifyApi.uploadCustomPlaylistCoverImage(data.body.id, img)
-    spotifyApi.addTracksToPlaylist(data.body.id, songs)
-    
-  }, function(err) {
-    console.log('Something went wrong!', err);
-  });
+  let data = await spotifyApi.createPlaylist(`All random (${text_date})`, { 'description': 'This playlist contains 30 aleatory songs', 'public': true })
+
+  spotifyApi.uploadCustomPlaylistCoverImage(data.body.id, img)
+  spotifyApi.addTracksToPlaylist(data.body.id, songs)
+
+  let link = data.body.external_urls.spotify
+  console.log(link)
+  return link
 }
 
 
