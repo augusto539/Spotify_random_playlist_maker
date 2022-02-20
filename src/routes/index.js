@@ -157,7 +157,6 @@ router.get('/home/:info', (req, res) => {
   if (req.params.info == 'crear') {
     get_tracs(token).then( track_list => {
       create_playlist(track_list).then( link => {
-        console.log(link)
         res.render('home.html', {title: '- home', status:'succes', PL_link:link});
       });
     });
@@ -195,7 +194,6 @@ async function create_playlist(songs){ // songs = ["spotify:track:4iV5W9uYEdYUVa
   spotifyApi.addTracksToPlaylist(data.body.id, songs)
 
   let link = data.body.external_urls.spotify
-  console.log(link)
   return link
 }
 
