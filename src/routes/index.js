@@ -58,28 +58,16 @@ const genres = [
   'swedish',           'synth-pop',      'tango',
   'techno',            'trance',         'trip-hop',
   'turkish',           'work-out',       'world-music'
-]
+];
 
 const scopes = [
-    'ugc-image-upload',
-    'user-read-playback-state',
-    'user-modify-playback-state',
-    'user-read-currently-playing',
-    'streaming',
-    'app-remote-control',
-    'user-read-email',
-    'user-read-private',
-    'playlist-read-collaborative',
-    'playlist-modify-public',
-    'playlist-read-private',
-    'playlist-modify-private',
-    'user-library-modify',
-    'user-library-read',
-    'user-top-read',
-    'user-read-playback-position',
-    'user-read-recently-played',
-    'user-follow-read',
-    'user-follow-modify'
+  'ugc-image-upload',   // Upload a Custom Playlist Cover Image
+  'user-read-email',    // Get Current User's Profile
+  'playlist-read-collaborative',  // nclude collaborative playlists when requesting a user's playlists.
+  'playlist-modify-public',   // 	Manage user's public playlists.
+  'user-library-modify',    // 	Manage your saved content.
+  'user-library-read',    // 	Read access to a user's library.
+  'user-follow-modify'  // Follow Artists or Users, Unfollow Artists or Users
 ];
   
 
@@ -139,9 +127,15 @@ router.get('/callback', (req, res) => {
       expiration_date: expiration_date
     };
 
-    res.cookie('token',cookie_val)
-    res.redirect('/home');
-  
+    
+    spotifyApi.getMe()
+      .then(function(data) {
+        res.cookie('token',cookie_val)
+        res.redirect('/home');
+      }, function(err) {
+        console.log('not registered user')
+        res.redirect('/home/not_registered_user')
+    });
   }).catch(error => {
     console.error('Error getting Tokens:', error);
     res.send(`Error getting Tokens: ${error}`);
@@ -153,13 +147,17 @@ router.get('/home', (req, res) => {
 });
 // home (create playlist)
 router.get('/home/:info', (req, res) => {
-  let token = req.cookies.token.access_token
   if (req.params.info == 'crear') {
+    let token = req.cookies.token.access_token
+    // get tracs and create the playlist
     get_tracs(token).then( track_list => {
       create_playlist(track_list).then( link => {
         res.render('home.html', {title: '- home', status:'succes', PL_link:link});
       });
     });
+  };
+  if (req.params.info == 'not_registered_user') {
+    res.render('home.html', {title: '- home', status:'not_registered_user', PL_link:''});
   };
 });
 
@@ -175,7 +173,11 @@ async function get_tracs(token){
 
     let url = `https://api.spotify.com/v1/recommendations?limit=15&seed_genres=${list_of_generes.join("%2C")}`;
     let Authorization = `Bearer ${token}`
-    let response = await axios({url: url,method: 'get',headers: {'Accept': 'application/json','Content-Type': 'application/json','Authorization': Authorization},});
+    let response = await axios({
+      url: url,
+      method: 'get',
+      headers: {'Accept': 'application/json','Content-Type': 'application/json','Authorization': Authorization}
+    });
     response.data.tracks.forEach(element => {
       tracks.push(element.uri);
     });
